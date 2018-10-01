@@ -79,18 +79,12 @@
                         for detailed status and configuration
                     </p>
                     <p>
-                        ${%ConnectFrom1}
-                    </p>
-                    <pre style="margin:1em">
-                        Selenium selenium = new DefaultSelenium("${it.activeHost}", ${it.activePort}, "*firefox", "http://my.test.site.org/");
-                    </pre>
-                    <p>
-                        ${%ConnectFrom2}
+                        ${%ConnectFrom}
                     </p>
                     <pre style="margin:1em">
                         WebDriver driver = new RemoteWebDriver(new URL("http://${it.activeHost}:${it.activePort}/wd/hub"), capability);
                     </pre>
-                    <h2>${%Registered Remote Controls}</h2>
+                    <h2>${%Registered Selenium Nodes}</h2>
                     <j:set var="rcs" value="${it.remoteControls}"/>
                     <j:choose>
                         <j:when test="${!empty(rcs)}">
@@ -110,7 +104,7 @@
                             </div>
                         </j:when>
                         <j:otherwise>
-                            <p>${%No RCs have checked in yet. Have you started some slaves?}</p>
+                            <p>${%No Selenium nodes have checked in yet. Have you started some slaves?}</p>
                         </j:otherwise>
                     </j:choose>
                 </j:when>

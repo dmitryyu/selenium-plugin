@@ -31,13 +31,8 @@ import hudson.model.Label;
 import hudson.model.TaskListener;
 import hudson.plugins.selenium.callables.hub.StopHubCallable;
 import hudson.plugins.selenium.configuration.ConfigurationDescriptor;
-import hudson.plugins.selenium.configuration.CustomRCConfiguration;
 import hudson.plugins.selenium.configuration.CustomWDConfiguration;
 import hudson.plugins.selenium.configuration.SeleniumNodeConfiguration;
-import hudson.plugins.selenium.configuration.browser.selenium.ChromeBrowser;
-import hudson.plugins.selenium.configuration.browser.selenium.FirefoxBrowser;
-import hudson.plugins.selenium.configuration.browser.selenium.IEBrowser;
-import hudson.plugins.selenium.configuration.browser.selenium.SeleniumBrowser;
 import hudson.plugins.selenium.configuration.browser.webdriver.WebDriverBrowser;
 import hudson.plugins.selenium.configuration.global.SeleniumGlobalConfiguration;
 import hudson.plugins.selenium.configuration.global.hostname.HostnameResolver;
@@ -72,7 +67,6 @@ import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.ServerSocket;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -398,45 +392,6 @@ public class PluginImpl extends Plugin implements Action, Serializable, Describa
     private transient Boolean rcBrowserSideLog;
     private transient boolean rcDebug;
 
-    // Migrate old configurations to new configuration
-    public Object readResolve() {
-        // Update from plugin 2.0 to 2.1 where browsers were introduced
-        if (rcFirefoxProfileTemplate != null || rcBrowserSessionReuse != null || rcTrustAllSSLCerts != null || rcBrowserSideLog != null) {
-            String rcFirefoxProfileTemplate = getDefaultForNull(this.rcFirefoxProfileTemplate, "");
-            Boolean rcBrowserSessionReuse = getDefaultForNull(this.rcBrowserSessionReuse, Boolean.FALSE);
-            Boolean rcTrustAllSSLCerts = getDefaultForNull(this.rcTrustAllSSLCerts, Boolean.FALSE);
-            Boolean rcBrowserSideLog = getDefaultForNull(this.rcBrowserSideLog, Boolean.FALSE);
-
-            List<SeleniumBrowser> browsers = new ArrayList<SeleniumBrowser>();
-            browsers.add(new IEBrowser(5, "", "", false));
-            browsers.add(new FirefoxBrowser(5, "", ""));
-            browsers.add(new ChromeBrowser(5, "", ""));
-
-            int port = 4445;
-            try {
-                ServerSocket ss = new ServerSocket(0);
-                port = ss.getLocalPort();
-                ss.close();
-            } catch (IOException e) {
-            }
-
-            SeleniumNodeConfiguration c = new CustomRCConfiguration(port, rcBrowserSideLog, rcDebug, rcTrustAllSSLCerts, rcBrowserSessionReuse,
-                    -1, rcFirefoxProfileTemplate, browsers, null);
-
-            synchronized (configurations) {
-                configurations.add(new SeleniumGlobalConfiguration("Selenium v2.0 configuration", new MatchAllMatcher(), c));
-            }
-
-        }
-
-        // update to 2.3 where hostname options were introduced
-        if (hostnameResolver == null) {
-            hostnameResolver = new JenkinsRootHostnameResolver();
-        }
-
-        return this;
-    }
-
     /**
      * Returns either the object, or the default value is null.
      *
@@ -651,10 +606,10 @@ public class PluginImpl extends Plugin implements Action, Serializable, Describa
     public SeleniumNodeConfiguration getDefaultConfiguration() {
         validateAdmin();
         List<WebDriverBrowser> browsers = new ArrayList<WebDriverBrowser>();
-        browsers.add(new hudson.plugins.selenium.configuration.browser.webdriver.IEBrowser(1, null, null, false));
-        browsers.add(new hudson.plugins.selenium.configuration.browser.webdriver.FirefoxBrowser(5, null, null));
         browsers.add(new hudson.plugins.selenium.configuration.browser.webdriver.ChromeBrowser(5, null, null));
-        return new CustomWDConfiguration(4445, null, browsers, null, 5);
+        browsers.add(new hudson.plugins.selenium.configuration.browser.webdriver.FirefoxBrowser(5, null, null));
+        browsers.add(new hudson.plugins.selenium.configuration.browser.webdriver.IEBrowser(1, null, null, false));
+        return new CustomWDConfiguration(5555, null, browsers, null, 5);
     }
 
     /**

@@ -156,7 +156,7 @@ public class SeleniumTest {
             }
             Thread.sleep(2000);
         }
-        throw new AssertionError("No RC had checked in after " + (timeout * 0.9) + " seconds");
+        throw new AssertionError("No Node had checked in after " + (timeout * 0.9) + " seconds");
     }
 
     private PluginImpl getPlugin() {
